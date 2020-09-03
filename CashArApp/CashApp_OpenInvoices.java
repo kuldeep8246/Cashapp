@@ -25,7 +25,7 @@ public class CashApp_OpenInvoices {
     
     FormReference formObject = FormContext.getCurrentInstance().getFormReference();
     FormConfig formConfig = FormContext.getCurrentInstance().getFormConfig();
-    public void getOpenInvoice(String customer_code, String bu) {
+    public void getOpenInvoice(String customer_code, String bu,String glDate) {
         System.out.println("inside getCash APP ********");
         formObject = FormContext.getCurrentInstance().getFormReference();
         formConfig = FormContext.getCurrentInstance().getFormConfig();
@@ -144,7 +144,7 @@ public class CashApp_OpenInvoices {
                         + "<SubItem>"+invoicedueDate+"</SubItem>"//
                         + "<SubItem>"+invoiceDueAmt+"</SubItem>" // 
                         + "<SubItem></SubItem>" //applied amount 
-                        + "<SubItem></SubItem>" //appliy date 
+                        + "<SubItem>"+glDate+"</SubItem>" //appliy date 
                         + "</ListItem>";
             }
             System.out.println("Final input xml for insertion " + inputxml);

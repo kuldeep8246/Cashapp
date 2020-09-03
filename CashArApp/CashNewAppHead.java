@@ -186,9 +186,8 @@ public class CashNewAppHead implements FormListener {
                 formObject.setNGValue("bank_name", result15.get(0).get(0));
                 formObject.setNGValue("transaction_ref", result15.get(0).get(1));
                 String narration = result15.get(0).get(2);
-                if(narration.length()>190)
-                {
-                 narration = narration.substring(0,88);
+                if (narration.length() > 190) {
+                    narration = narration.substring(0, 88);
                 }
                 formObject.setNGValue("ca_narration_n", narration);
                 formObject.setNGValue("ca_reveived_date", dateValue);
@@ -257,24 +256,31 @@ public class CashNewAppHead implements FormListener {
             } else if (pEvent.getSource().getName().equalsIgnoreCase("type_of_transaction")) {//type transection multideduction
                 System.out.println("** transection of multideduction **");
                 String typeOfTrans = formObject.getNGValue("type_of_transaction");
-                if (typeOfTrans.equalsIgnoreCase("general") || typeOfTrans.equalsIgnoreCase("multidivision")) {
+                if (typeOfTrans.equalsIgnoreCase("general")) {
                     // formObject.setSheetEnable("Tab1", 0, false);
-                    formObject.clear("deduc_accept1");
-                    formObject.clear("deduc_accept2");
-                    formObject.clear("deduc_accept3");
-                    formObject.clear("deduc_accept4");
-                    formObject.clear("multideduc_bu1");
-                    formObject.clear("multideduc_bu2");
-                    formObject.clear("multideduc_bu3");
-                    formObject.clear("multideduc_bu4");
-                    formObject.clear("deduc_amt1");
-                    formObject.clear("deduc_amt2");
-                    formObject.clear("deduc_amt3");
-                    formObject.clear("deduc_amt4");
+//                    formObject.clear("deduc_accept1");
+//                    formObject.clear("deduc_accept2");
+//                    formObject.clear("deduc_accept3");
+//                    formObject.clear("deduc_accept4");
+//                    formObject.clear("multideduc_bu1");
+//                    formObject.clear("multideduc_bu2"); 
+//                    formObject.clear("multideduc_bu3");
+//                    formObject.clear("multideduc_bu4");
+//                    formObject.clear("deduc_amt1");
+//                    formObject.clear("deduc_amt2");
+//                    formObject.clear("deduc_amt3");
+//                    formObject.clear("deduc_amt4");
+                    formObject.setSheetEnable("Tab1", 0, true);
                     formObject.setSheetEnable("Tab1", 1, false);
-                } else {
+                    formObject.setSheetEnable("Tab1", 2, false);
+                } else if (typeOfTrans.equalsIgnoreCase("multidivision")) {
+                    formObject.setSheetEnable("Tab1", 0, true);
+                    formObject.setSheetEnable("Tab1", 1, false);
+                    formObject.setSheetEnable("Tab1", 2, true);
+                } else if (typeOfTrans.equalsIgnoreCase("multideduction")) {
                     formObject.setSheetEnable("Tab1", 0, true);
                     formObject.setSheetEnable("Tab1", 1, true);
+                    formObject.setSheetEnable("Tab1", 2, false);
                     formObject.setEnabled("multidedu_cn1", false);
                     formObject.setEnabled("multideduc_cn1", false);
                     formObject.setEnabled("multideduc_cn2", false);
@@ -287,16 +293,8 @@ public class CashNewAppHead implements FormListener {
                     formObject.setEnabled("cn_wi_no4", false);
                     formObject.setEnabled("cn_wi_no5", false);
                 }
-            } else if (pEvent.getSource().getName().equalsIgnoreCase("ca_division_type")) {   //  multi division == Y or single   == N
-                System.out.println("Change in division type");
-                String divisionType = formObject.getNGValue("ca_division_type");
-                System.out.println("paymentTpye  " + divisionType);
-                if ("Y".equalsIgnoreCase(divisionType)) {
-                    formObject.setEnabled("ca_multidivision_name", true);
-                } else if ("N".equalsIgnoreCase(divisionType)) {
-                    formObject.setEnabled("ca_multidivision_name", false);
-                }
-            } else if (pEvent.getSource().getName().equalsIgnoreCase("ca_type_adv_ar_unallocated")) {   //  receipt of type stand/misc
+            } 
+            else if (pEvent.getSource().getName().equalsIgnoreCase("ca_type_adv_ar_unallocated")) {   //  receipt of type stand/misc
                 System.out.println("Change receipt type");
                 String receiptofType = formObject.getNGValue("ca_type_adv_ar_unallocated");
                 System.out.println("receiptofType  " + receiptofType);
@@ -349,7 +347,9 @@ public class CashNewAppHead implements FormListener {
                     costCenter();
                     //  setPU();
                     //  divisionCode("D");
-
+                   // formObject.addComboItem("gst_applicable_control", "Select", "");
+                  //  formObject.addComboItem("gst_applicable_control", "Yes", "yes");
+                    formObject.addComboItem("gst_applicable_control", "No", "no");
                     // BAAN Field Disable
                     formObject.setEnabled("employee_control", false);
                     formObject.setEnabled("ca_bank_code", false);
@@ -541,12 +541,7 @@ public class CashNewAppHead implements FormListener {
 
         } else if (pEvent.getType().name().equalsIgnoreCase("MOUSE_CLICKED")) {
             System.out.print("------------Inside Mouse Click------------------");
-//            if (pEvent.getSource().getName().equalsIgnoreCase("send")) {// send id send 
-//                System.out.println("Inside save work item !!");
-//                formObject.RaiseEvent("WFSave", true);
-//               // formObject.RaiseEvent("SAVE");
-//                formObject.RaiseEvent("WFDone", true);
-//            }
+
             if (pEvent.getSource().getName().equalsIgnoreCase("Button5")) {
                 formObject.ExecuteExternalCommand("NGAddRow", "q_cash_app_ar");// for double line error   
                 // formObject.RaiseEvent("WFSave", true);
@@ -704,11 +699,12 @@ public class CashNewAppHead implements FormListener {
                 System.out.println("open invoices total***");
                 String customerCode = formObject.getNGValue("ca_customer_code");
                 String bu = formObject.getNGValue("ca_division_code");
+                String glDate = formObject.getNGValue("ca_booking_date");
                 if (customerCode.equalsIgnoreCase("") || bu.equalsIgnoreCase("")) {
                     throw new ValidatorException(new FacesMessage("Customer code & Bu is not Select, Please check ", ""));
                 }
                 CashApp_OpenInvoices oi = new CashApp_OpenInvoices();
-                oi.getOpenInvoice(customerCode, bu);
+                oi.getOpenInvoice(customerCode, bu, glDate);
                 System.out.println("Method call done for cash app");
                 formObject.setEnabled("Button8", false);
             } else if (pEvent.getSource().getName().equalsIgnoreCase("clearinvoice")) {
@@ -866,24 +862,6 @@ public class CashNewAppHead implements FormListener {
 
                 formObject.setEnabled("Frame8", true);
                 formObject.setEnabled("ca_drawn_bank", false);
-
-//                formObject.setEnabled("Frame15", false);
-//                formObject.setEnabled("Frame14", false);
-//                formObject.setEnabled("Frame12", false);
-//                formObject.setEnabled("Frame3", false);
-//                formObject.setEnabled("Frame10", false);
-                // ro commercial
-//                formObject.setEnabled("multidedu_cn1", false);
-//                formObject.setEnabled("multideduc_cn1", false);
-//                formObject.setEnabled("multideduc_cn2", false);
-//                formObject.setEnabled("multideduc_cn3", false);
-//                formObject.setEnabled("multideduc_cn4", false);
-//                formObject.setEnabled("multideduc_cn5", false);
-//                formObject.setEnabled("cn_wi_no1", false);
-//                formObject.setEnabled("cn_wi_no2", false);
-//                formObject.setEnabled("cn_wi_no3", false);
-//                formObject.setEnabled("cn_wi_no4", false);
-//                formObject.setEnabled("cn_wi_no5", false);
                 formObject.setEnabled("ca_bank_code", false);
                 formObject.setEnabled("ca_receipt_method", false);
                 formObject.setEnabled("tax_amt_control", false);
@@ -900,10 +878,6 @@ public class CashNewAppHead implements FormListener {
             } else if (activityName.equalsIgnoreCase("TFS Post")) {
                 formObject.clear("exception");
                 formObject.clear("ca_user_decision");
-//                formObject.clear("location_control");
-//                formObject.clear("cost_center_control");
-//                formObject.clear("gl_code_control");
-//                formObject.clear("future2_control");
                 formObject.setEnabled("Frame13", false);
                 formObject.setEnabled("Frame11", false);
                 formObject.setEnabled("Frame2", false);
@@ -926,6 +900,7 @@ public class CashNewAppHead implements FormListener {
                 // tfs post  formObject.setEnabled("Sheet1", false);
                 formObject.setSheetEnable("Tab1", 0, false);
                 formObject.setSheetEnable("Tab1", 1, false);
+                formObject.setSheetEnable("Tab1", 2, false);
 
                 formObject.addComboItem("ca_user_decision", "--Select--", "");
                 formObject.addComboItem("ca_user_decision", "Post", "post");
@@ -953,9 +928,11 @@ public class CashNewAppHead implements FormListener {
                 formObject.setEnabled("Frame7", false);
                 formObject.setSheetEnable("Tab1", 0, false);
                 formObject.setSheetEnable("Tab1", 1, false);
+                formObject.setSheetEnable("Tab1", 2, false);
                 formObject.setEnabled("send", true);
                 // processInstanceId = formConfig.getConfigElement("ProcessInstanceId");
-                String flags = formObject.getNGValue("ca_division_type");
+                //  String flags = formObject.getNGValue("ca_division_type");
+                String flags = "N";
                 String ngId = formObject.getNGValue("ng_wi_id");
                 System.out.println("flags " + flags + " ngId  " + ngId);
                 getResponse getresponse = new getResponse();
@@ -985,6 +962,7 @@ public class CashNewAppHead implements FormListener {
                 formObject.setEnabled("Frame7", false);
                 formObject.setSheetEnable("Tab1", 0, false);
                 formObject.setSheetEnable("Tab1", 1, false);
+                formObject.setSheetEnable("Tab1", 2, false);
                 // CN_ENTRY data enble and desable
                 String deducAccept1 = formObject.getNGValue("deduc_accept1");
                 String deducAccept2 = formObject.getNGValue("deduc_accept2");
@@ -1364,11 +1342,24 @@ public class CashNewAppHead implements FormListener {
             result = formObject.getDataFromDataSource(queryBU);
             formObject.addComboItem("ca_division_code", "Select", "");
             formObject.addComboItem("division_control", "Select", "");
+            formObject.addComboItem("multi_div_dn", "Select", "");
+            formObject.addComboItem("multi_div_cn1", "Select", "");
+            formObject.addComboItem("multi_div_cn2", "Select", "");
+            formObject.addComboItem("multi_div_cn3", "Select", "");
+            formObject.addComboItem("multi_div_cn4", "Select", "");
+            formObject.addComboItem("multi_div_cn5", "Select", "");
+
             for (int i = 0; i < result.size(); i++) {
                 String description3 = result.get(i).get(1) + " : " + result.get(i).get(0);
                 String loc_code = result.get(i).get(1);
                 formObject.addComboItem("ca_division_code", description3, loc_code);
                 formObject.addComboItem("division_control", description3, loc_code);
+                formObject.addComboItem("multi_div_dn", description3, loc_code);
+                formObject.addComboItem("multi_div_cn1", description3, loc_code);
+                formObject.addComboItem("multi_div_cn2", description3, loc_code);
+                formObject.addComboItem("multi_div_cn3", description3, loc_code);
+                formObject.addComboItem("multi_div_cn4", description3, loc_code);
+                formObject.addComboItem("multi_div_cn5", description3, loc_code);
             }
             //  formObject.RaiseEvent("SAVE");
 
@@ -1633,6 +1624,7 @@ public class CashNewAppHead implements FormListener {
         String intended_use = "";
         String Action = "CREATE_RECEIPT";
         String activityName1 = "";
+        String ratType = "";
         String workItemId_no = formObject.getNGValue("processid");
         activityName1 = formObject.getWFActivityName();
         List<List<String>> result3 = null;
@@ -1653,22 +1645,25 @@ public class CashNewAppHead implements FormListener {
         String exchangerateDate = formObject.getNGValue("ca_rate_date");
         String division = formObject.getNGValue("division_control");
         String exchangeRate = formObject.getNGValue("ca_rate");
-        String ratType = formObject.getNGValue("ca_rate_type");
+        ratType = formObject.getNGValue("ca_rate_type");
+        if (ratType == null) {
+            ratType = "";
+        }
         String customerName = formObject.getNGValue("ca_customer_name");
         String customerSite = formObject.getNGValue("ca_customer_site");
         String customerCode = formObject.getNGValue("ca_customer_code");
         String salesOrderNo = formObject.getNGValue("ca_so_no");
         String projectCode = formObject.getNGValue("ca_project_code");
         String glDate = formObject.getNGValue("ca_booking_date");
-        String divisionType = formObject.getNGValue("ca_division_type");
-
+        //  String divisionType = formObject.getNGValue("ca_division_type");
+        String divisionType = "N";
         System.out.println("exchange rate    " + exchangeRate + "flag " + ratType + " " + salesOrderNo + "exchangerateDate name " + exchangerateDate + " " + chequeNo + " " + drawnBank + " " + currencyType + " " + bankReceiptDate + " " + depositDate + " " + narration);
         String arPayment = formObject.getNGValue("ca_payment_method");
 
         try {
             Connection con = DriverManager.getConnection("jdbc:oracle:thin:@10.100.1.232:1601:R12UAT", "apps", "r12uatapps");
 
-            String row_count = "select tax_amount,tax_category_code,business_unit, location,cost_center, gl_code, wbs_code, future1, future2 from cmplx_cash_app_ar where procid like '"
+            String row_count = "select tax_amount,tax_category_code,business_unit, location,cost_center, gl_code, wbs_code, future1, future2,amount,gst_applicable,san_hsn,sac,tax_cat_code,organization,basic_amount,location_gst from cmplx_cash_app_ar where procid like '"
                     + processInstanceId + "'";
             System.out.println(" query to get the list view data , row count query sql :" + row_count);
             result3 = formObject.getDataFromDataSource(row_count);
@@ -1683,19 +1678,27 @@ public class CashNewAppHead implements FormListener {
             String segma6 = "";
             String segma7 = "";
             String amount = "";
-            String gstApplicable="";
+            String gstApplicable = "";
+            String gstapp = "";
+            String sac = "";
+            String hsn = "";
+            String orgn = "";
+            String basicAmt = "";
+            String taxCateCode = "";
+            String locationgst = "";
+            String standMisc = "";
             String arPaymentType = formObject.getNGValue("ca_payment_method");
-            String standMisc = formObject.getNGValue("ca_type_adv_ar_unallocated");
-            gstApplicable = formObject.getNGValue("gst_applicable_control");
-            System.out.println("ar  " + arPayment + "stand  " + standMisc);
+            standMisc = formObject.getNGValue("ca_type_adv_ar_unallocated");
+           // gstApplicable = formObject.getNGValue("gst_applicable_control");
+            System.out.println("ar kp" + arPayment + "stand  " + standMisc);
             if (arPaymentType.equalsIgnoreCase("ar") && standMisc.equalsIgnoreCase("CASH")) {
                 System.out.println("cmplx data " + exchangeRate + "rate type   " + ratType + " " + segma1 + " " + segma2 + " " + segma3);
                 values = "('" + divisionCode + "','" + receiptMethodDoc + "','" + typeofReceipt + "','" + chequeNo + "',(TO_DATE('" + chequeDate + "','dd/mm/yyyy')),'" + ReceviedAmt + "',(TO_DATE('" + depositDate + "','dd/mm/yyyy')),'" + drawnBank + "','"
                         + currencyType + "','" + activityName1 + "','" + narration + "','" + segma1 + "','" + segma2 + "','"
-                        + segma3 + "','" + segma4 + "','" + segma5 + "','" + segma6 + "','" + segma7 + "','" + exchangeRate + "','" + ratType + "','" + customerName + "','" + customerSite + "','" + customerCode + "','" + Action + "','" + salesOrderNo + "','" + projectCode + "','" + processInstanceId + "',(TO_DATE('" + glDate + "','dd/mm/yyyy')),'" + divisionType + "',(TO_DATE('" + exchangerateDate + "','dd/mm/yyyy')))";
+                        + segma3 + "','" + segma4 + "','" + segma5 + "','" + segma6 + "','" + segma7 + "','" + exchangeRate + "','" + ratType + "','" + customerName + "','" + customerSite + "','" + customerCode + "','" + Action + "','" + salesOrderNo + "','" + projectCode + "','" + processInstanceId + "',(TO_DATE('" + glDate + "','dd/mm/yyyy')),'" + divisionType + "',(TO_DATE('" + exchangerateDate + "','dd/mm/yyyy')),'" + gstapp + "','" + orgn + "','" + hsn + "','" + sac + "','" + basicAmt + "','" + taxCateCode + "','" + locationgst + "')";
 
                 String query_column = "(OPERATING_UNIT,METHOD_SOURCE,TYPE,AR_NUMBER,CHEQUE_DATE,RECEIPT_AMOUNT,DEPOSIT_DATE,BANK_NAME,CURRENCY_CODE,ACTIVITY_NAME,COMMENT_NARRATION,GL_ACCOUNT1, "
-                        + "GL_ACCOUNT2,GL_ACCOUNT3,GL_ACCOUNT4,GL_ACCOUNT5,GL_ACCOUNT6,GL_ACCOUNT7,EXCHANGE_RATE,RATE_TYPE,CUSTOMER_NAME,CUSTOMER_SITE,CUSTOMER_NUMBER,ACTION,ATTRIBUTE1,ATTRIBUTE2,ATTRIBUTE10,RECEIPT_DATE,MULTIDIVISON_FLAG,EXCHANGE_RATE_DATE)";
+                        + "GL_ACCOUNT2,GL_ACCOUNT3,GL_ACCOUNT4,GL_ACCOUNT5,GL_ACCOUNT6,GL_ACCOUNT7,EXCHANGE_RATE,RATE_TYPE,CUSTOMER_NAME,CUSTOMER_SITE,CUSTOMER_NUMBER,ACTION,ATTRIBUTE1,ATTRIBUTE2,ATTRIBUTE10,RECEIPT_DATE,MULTIDIVISON_FLAG,EXCHANGE_RATE_DATE,GST_APP,ORGANIZATION_CODE,HSN_CODE,SAC_CODE,BASIC_AMOUNT,TAX_CATEGORY,LOCATION_CODE)";
 
                 String sql = "Insert into xxtmx_ar_receipt_stg_tbl" + query_column + " values " + values;
                 System.out.println("query " + sql);
@@ -1705,7 +1708,10 @@ public class CashNewAppHead implements FormListener {
                 System.out.println("record inserted");
                 con.close();
             } else {
-                int i=0;
+                System.out.println("advance1 data kpgst");
+                int i = 0;
+                int j = 1;
+                int k;
                 for (i = 0; i < result3.size(); i++) {
                     taxAmount = result3.get(i).get(0);
                     taxCategory = result3.get(i).get(1);
@@ -1716,54 +1722,52 @@ public class CashNewAppHead implements FormListener {
                     segma5 = result3.get(i).get(6);
                     segma6 = result3.get(i).get(7);
                     segma7 = result3.get(i).get(8);
-                    amount = result3.get(i).get(12);
-
-                    System.out.println("cmplx data " + amount + "rate type   " + i + " " + segma1 + " " + segma2 + " " + segma3);
-                    values = "('" + i + "','" + amount + "','" + divisionCode + "','" + receiptMethodDoc + "','" + typeofReceipt + "','" + chequeNo + "',(TO_DATE('" + chequeDate + "','dd/mm/yyyy')),'" + ReceviedAmt + "',(TO_DATE('" + depositDate + "','dd/mm/yyyy')),'" + drawnBank + "','"
+                    amount = result3.get(i).get(9);
+                    gstapp = result3.get(i).get(10);
+                    hsn = result3.get(i).get(11);
+                    sac = result3.get(i).get(12);
+                    taxCateCode = result3.get(i).get(13);
+                    orgn = result3.get(i).get(14);
+                    basicAmt = result3.get(i).get(15);
+                    locationgst = result3.get(i).get(16);
+                    
+                     if (basicAmt == null) {
+                        basicAmt = "";
+                    }
+                    if (gstapp == null) {
+                        gstapp = "";
+                    }
+                    
+                    k = i + j;
+                    System.out.println("cmplx data " + amount + "rate type   " + k + " " + segma1 + " " + segma2 + " " + segma3);
+                    values = "('" + k + "','" + amount + "','" + divisionCode + "','" + receiptMethodDoc + "','" + typeofReceipt + "','" + chequeNo + "',(TO_DATE('" + chequeDate + "','dd/mm/yyyy')),'" + ReceviedAmt + "',(TO_DATE('" + depositDate + "','dd/mm/yyyy')),'" + drawnBank + "','"
                             + currencyType + "','" + activityName1 + "','" + narration + "','" + segma1 + "','" + segma2 + "','"
-                            + segma3 + "','" + segma4 + "','" + segma5 + "','" + segma6 + "','" + segma7 + "','" + exchangeRate + "','" + ratType + "','" + customerName + "','" + customerSite + "','" + customerCode + "','" + Action + "','" + salesOrderNo + "','" + projectCode + "','" + processInstanceId + "',(TO_DATE('" + glDate + "','dd/mm/yyyy')),'" + divisionType + "',(TO_DATE('" + exchangerateDate + "','dd/mm/yyyy')))";
+                            + segma3 + "','" + segma4 + "','" + segma5 + "','" + segma6 + "','" + segma7 + "','" + exchangeRate + "','" + ratType + "','" + customerName + "','" + customerSite + "','" + customerCode + "','" + Action + "','" + salesOrderNo + "','" + projectCode + "','" + processInstanceId + "',(TO_DATE('" + glDate + "','dd/mm/yyyy')),'" + divisionType + "',(TO_DATE('" + exchangerateDate + "','dd/mm/yyyy')),'" + gstapp + "','" + orgn + "','" + hsn + "','" + sac + "','" + basicAmt + "','" + taxCateCode + "','" + locationgst + "')";
+                    
+                    System.out.println("values  kp "+values);
+                    
+                    String query_column = "(LINE_NUMBER,TRX_AMOUNT,OPERATING_UNIT,METHOD_SOURCE,TYPE,AR_NUMBER,CHEQUE_DATE,RECEIPT_AMOUNT,DEPOSIT_DATE,BANK_NAME,CURRENCY_CODE,ACTIVITY_NAME,COMMENT_NARRATION,GL_ACCOUNT1, "
+                            + "GL_ACCOUNT2,GL_ACCOUNT3,GL_ACCOUNT4,GL_ACCOUNT5,GL_ACCOUNT6,GL_ACCOUNT7,EXCHANGE_RATE,RATE_TYPE,CUSTOMER_NAME,CUSTOMER_SITE,CUSTOMER_NUMBER,ACTION,ATTRIBUTE1,ATTRIBUTE2,ATTRIBUTE10,RECEIPT_DATE,MULTIDIVISON_FLAG,EXCHANGE_RATE_DATE,GST_APP,ORGANIZATION_CODE,HSN_CODE,SAC_CODE,BASIC_AMOUNT,TAX_CATEGORY,LOCATION_CODE)";
+                    
+                    System.out.println("Misc  insert call " + standMisc +" gst app "+gstapp +" i "+i);
 
-                    String query_column = "(LINE_NUMBER,UNIT_PRICE,OPERATING_UNIT,METHOD_SOURCE,TYPE,AR_NUMBER,CHEQUE_DATE,RECEIPT_AMOUNT,DEPOSIT_DATE,BANK_NAME,CURRENCY_CODE,ACTIVITY_NAME,COMMENT_NARRATION,GL_ACCOUNT1, "
-                            + "GL_ACCOUNT2,GL_ACCOUNT3,GL_ACCOUNT4,GL_ACCOUNT5,GL_ACCOUNT6,GL_ACCOUNT7,EXCHANGE_RATE,RATE_TYPE,CUSTOMER_NAME,CUSTOMER_SITE,CUSTOMER_NUMBER,ACTION,ATTRIBUTE1,ATTRIBUTE2,ATTRIBUTE10,RECEIPT_DATE,MULTIDIVISON_FLAG,EXCHANGE_RATE_DATE)";
+                    if ((gstapp.equalsIgnoreCase("yes")) || (i == 0) || (standMisc.equalsIgnoreCase("MISC"))) {
+                   // if ((gstapp.equalsIgnoreCase("yes")) || (i == 0)) {
+                        System.out.println("Misc  inserted " + standMisc);
+                        String sql = "Insert into xxtmx_ar_receipt_stg_tbl " + query_column + " values " + values;
+                        
+                        System.out.println("query " + sql);
+                        PreparedStatement pstmt = con.prepareStatement(sql);
+                        pstmt.executeUpdate(sql);
+                        insertFlag = "Y";
+                        System.out.println("record inserted");
+                    }
+                    
 
-                    String sql = "Insert into xxtmx_ar_receipt_stg_tbl" + query_column + " values " + values;
-                    System.out.println("query " + sql);
-                    PreparedStatement pstmt = con.prepareStatement(sql);
-                    pstmt.executeUpdate(sql);
-                    insertFlag = "Y";
-                    System.out.println("record inserted");
                 }
                 con.close();
             }
-            /*
-for (int i = 0; i < result3.size(); i++) {
-                    taxAmount = result3.get(i).get(0);
-                    taxCategory = result3.get(i).get(1);
-                    segma1 = result3.get(i).get(2);
-                    segma2 = result3.get(i).get(3);
-                    segma3 = result3.get(i).get(4);
-                    segma4 = result3.get(i).get(5);
-                    segma5 = result3.get(i).get(6);
-                    segma6 = result3.get(i).get(7);
-                    segma7 = result3.get(i).get(8);
-
-                    System.out.println("cmplx data " + exchangeRate + "rate type   " + ratType + " " + segma1 + " " + segma2 + " " + segma3);
-                    values = "('" + divisionCode + "','" + receiptMethodDoc + "','" + typeofReceipt + "','" + chequeNo + "',(TO_DATE('" + chequeDate + "','dd/mm/yyyy')),'" + ReceviedAmt + "',(TO_DATE('" + depositDate + "','dd/mm/yyyy')),'" + drawnBank + "','"
-                            + currencyType + "','" + activityName1 + "','" + narration + "','" + segma1 + "','" + segma2 + "','"
-                            + segma3 + "','" + segma4 + "','" + segma5 + "','" + segma6 + "','" + segma7 + "','" + exchangeRate + "','" + ratType + "','" + customerName + "','" + customerSite + "','" + customerCode + "','" + Action + "','" + salesOrderNo + "','" + projectCode + "','" + processInstanceId + "',(TO_DATE('" + glDate + "','dd/mm/yyyy')),'" + divisionType + "',(TO_DATE('" + exchangerateDate + "','dd/mm/yyyy')))";
-
-                    String query_column = "(OPERATING_UNIT,METHOD_SOURCE,TYPE,AR_NUMBER,CHEQUE_DATE,RECEIPT_AMOUNT,DEPOSIT_DATE,BANK_NAME,CURRENCY_CODE,ACTIVITY_NAME,COMMENT_NARRATION,GL_ACCOUNT1, "
-                            + "GL_ACCOUNT2,GL_ACCOUNT3,GL_ACCOUNT4,GL_ACCOUNT5,GL_ACCOUNT6,GL_ACCOUNT7,EXCHANGE_RATE,RATE_TYPE,CUSTOMER_NAME,CUSTOMER_SITE,CUSTOMER_NUMBER,ACTION,ATTRIBUTE1,ATTRIBUTE2,ATTRIBUTE10,RECEIPT_DATE,MULTIDIVISON_FLAG,EXCHANGE_RATE_DATE)";
-
-                    String sql = "Insert into xxtmx_ar_receipt_stg_tbl" + query_column + " values " + values;
-                    System.out.println("query " + sql);
-                    PreparedStatement pstmt = con.prepareStatement(sql);
-                    pstmt.executeUpdate(sql);
-                    insertFlag = "Y";
-                    System.out.println("record inserted");
-                }
-             */
-
+          
         } catch (SQLException e) {
             insertFlag = "N";
             System.out.println("connection exception" + e);
@@ -1853,7 +1857,8 @@ for (int i = 0; i < result3.size(); i++) {
                 String unallocatedAmt1 = "";
                 advanceAmt1 = formObject.getNGValue("ca_advance_amount").trim();
                 cmiAmt1 = formObject.getNGValue("ca_cmi").trim();
-                unallocatedAmt1 = formObject.getNGValue("ca_unallocated").trim();
+                unallocatedAmt1 = formObject.getNGValue(""
+                        + "").trim();
                 if (unallocatedAmt1.equalsIgnoreCase("")) {
                     unallocatedAmt1 = "0";
                 }
@@ -1921,7 +1926,7 @@ for (int i = 0; i < result3.size(); i++) {
         validationMap.put("ca_mode_of_business", "Mode Of Business is a mandatory filed , kindly fill");
         validationMap.put("ca_documnt_category", "Document Category is a mandatory filed , kindly fill");
         validationMap.put("ca_type_adv_ar_unallocated", "Receipt Type is a mandatory filed , kindly fill");
-        validationMap.put("ca_division_type", "Multidivion or Single is a mandatory filed , kindly fill");
+        //  validationMap.put("ca_division_type", "Multidivion or Single is a mandatory filed , kindly fill");
         validationMap.put("ca_transaction_type", "Transaction Type is a mandatory filed , kindly fill");
         validationMap.put("ca_booking_date", "GL Date is a mandatory filed , kindly fill");
         validationMap.put("ca_payment_method", "Payment Type is a mandatory filed , kindly fill");
@@ -2018,7 +2023,7 @@ for (int i = 0; i < result3.size(); i++) {
 
     // raised exception data 
     private void exceptionraised() {
-         System.out.println("inside ro validation kp ");
+        System.out.println("inside ro validation kp ");
         String transactionType = "";
         String typeOfTrans = "";
         String divisionType = "";
@@ -2028,12 +2033,13 @@ for (int i = 0; i < result3.size(); i++) {
         gstApplicable = formObject.getNGValue("gst_applicable_control");
         receiptofType = formObject.getNGValue("ca_type_adv_ar_unallocated");
         paymentMethod = formObject.getNGValue("ca_payment_method");
-        divisionType = formObject.getNGValue("ca_division_type");
+        //  divisionType = formObject.getNGValue("ca_division_type");
+        divisionType = "N";
         typeOfTrans = formObject.getNGValue("type_of_transaction");
         transactionType = formObject.getNGValue("ca_transaction_type");
         System.out.println("paymentMethod  " + paymentMethod);
         if ("ar".equalsIgnoreCase(paymentMethod)) {
-             System.out.println("inside ro validation kp2 "+paymentMethod);
+            System.out.println("inside ro validation kp2 " + paymentMethod);
             formObject.setEnabled("ca_advance_amount", false);
             formObject.setEnabled("ca_cmi", false);
             formObject.setEnabled("ca_unallocated", false);
@@ -2073,7 +2079,7 @@ for (int i = 0; i < result3.size(); i++) {
             formObject.setEnabled("own_gst_reg_no_control", false);
             formObject.setEnabled("cust_gst_reg_no_control", false);
         } else if ("combined".equalsIgnoreCase(paymentMethod)) {
-             System.out.println("inside ro validation kp combind "+paymentMethod);
+            System.out.println("inside ro validation kp combind " + paymentMethod);
             formObject.setEnabled("ca_advance_amount", true);
             formObject.setEnabled("ca_cmi", true);
             formObject.setEnabled("ca_unallocated", true);
@@ -2084,7 +2090,7 @@ for (int i = 0; i < result3.size(); i++) {
             formObject.setEnabled("own_gst_reg_no_control", false);
             formObject.setEnabled("cust_gst_reg_no_control", false);
             formObject.setEnabled("total_applied_amt", false);
-        } 
+        }
         //  type of transaction
         if ("export".equalsIgnoreCase(transactionType)) {
             formObject.setEnabled("ca_currency_type", true);
@@ -2096,13 +2102,20 @@ for (int i = 0; i < result3.size(); i++) {
             formObject.setEnabled("ca_rate", false);
             formObject.setEnabled("ca_rate_date", false);
             formObject.addComboItem("ca_currency_type", "INR", "INR");
-        } 
-        
-        if (typeOfTrans.equalsIgnoreCase("general") || typeOfTrans.equalsIgnoreCase("multidivision")) {
+        }
+
+        if (typeOfTrans.equalsIgnoreCase("general")) {
+            formObject.setSheetEnable("Tab1", 0, true);
             formObject.setSheetEnable("Tab1", 1, false);
+            formObject.setSheetEnable("Tab1", 2, false);
+        } else if (typeOfTrans.equalsIgnoreCase("multidivision")) {
+            formObject.setSheetEnable("Tab1", 0, true);
+            formObject.setSheetEnable("Tab1", 1, false);
+            formObject.setSheetEnable("Tab1", 2, true);
         } else if (typeOfTrans.equalsIgnoreCase("multideduction")) {
             formObject.setSheetEnable("Tab1", 0, true);
             formObject.setSheetEnable("Tab1", 1, true);
+            formObject.setSheetEnable("Tab1", 2, false);
             formObject.setEnabled("multidedu_cn1", false);
             formObject.setEnabled("multideduc_cn1", false);
             formObject.setEnabled("multideduc_cn2", false);
@@ -2114,13 +2127,8 @@ for (int i = 0; i < result3.size(); i++) {
             formObject.setEnabled("cn_wi_no3", false);
             formObject.setEnabled("cn_wi_no4", false);
             formObject.setEnabled("cn_wi_no5", false);
-        } 
-        
-        if ("Y".equalsIgnoreCase(divisionType)) {
-            formObject.setEnabled("ca_multidivision_name", true);
-        } else if ("N".equalsIgnoreCase(divisionType)) {
-            formObject.setEnabled("ca_multidivision_name", false);
-        } 
+        }
+
         if ("CASH".equalsIgnoreCase(receiptofType)) {
             //  setModeOfBusiness(pEvent);
             formObject.setEnabled("Frame15", false);
@@ -2155,15 +2163,15 @@ for (int i = 0; i < result3.size(); i++) {
             formObject.setEnabled("receipt_date", false);
             formObject.setEnabled("own_gst_reg_no_control", false);
             formObject.setEnabled("cust_gst_reg_no_control", false);
-        } 
+        }
         if ("no".equalsIgnoreCase(gstApplicable)) {
             formObject.setEnabled("Frame3", false);
         } else if ("yes".equalsIgnoreCase(gstApplicable)) {
             formObject.setEnabled("Frame3", true);
             formObject.setEnabled("own_gst_reg_no_control", false);
             formObject.setEnabled("cust_gst_reg_no_control", false);
-        } 
-        
+        }
+
         if (formObject.getNGValue("ca_mode_of_business").equalsIgnoreCase("nonproject")) {
             formObject.setEnabled("projectbtn", false);
             formObject.setEnabled("ca_so_no", false);
@@ -2178,5 +2186,5 @@ for (int i = 0; i < result3.size(); i++) {
         }
     }
 //   end code 
-    
+
 }
